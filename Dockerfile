@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:18.20.2
 COPY . .
 RUN npm install
 EXPOSE 3000
