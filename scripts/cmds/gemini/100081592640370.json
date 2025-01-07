@@ -1,0 +1,50 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "voli"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I'm sorry, I don't understand what you mean by \"voli\".  Can you please clarify your request or question?\n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "guys 😪"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "guys 😪"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "\"Guys 😪\" appears to be an expression of tiredness or weariness, perhaps directed at a group of people. The sleepy face emoji (😪) emphasizes this feeling.  There's no specific question or request here.  Is there anything else I can help you with?\n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "\"Guys 😪\" appears to be an expression of tiredness or weariness, perhaps directed at a group of people. The sleepy face emoji (😪) emphasizes this feeling.  There's no specific question or request here.  Is there anything else I can help you with?"
+      }
+    ]
+  }
+]

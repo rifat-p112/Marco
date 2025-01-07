@@ -1,0 +1,34 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": ""
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": ""
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Okay, I'm ready to receive your questions and provide helpful and accurate responses using Python tools when needed.  Please ask away! I will do my best to understand your requests and provide clear, concise, and well-supported answers.  I'm eager to assist you. \n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Okay, I'm ready to receive your questions and provide helpful and accurate responses using Python tools when needed.  Please ask away! I will do my best to understand your requests and provide clear, concise, and well-supported answers.  I'm eager to assist you."
+      }
+    ]
+  }
+]

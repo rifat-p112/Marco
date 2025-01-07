@@ -1,0 +1,34 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Gn"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Gn"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I'm sorry, I don't understand what \"Gn\" means.  Could you please clarify your request?\n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I'm sorry, I don't understand what \"Gn\" means.  Could you please clarify your request?"
+      }
+    ]
+  }
+]

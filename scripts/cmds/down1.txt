@@ -1,0 +1,171 @@
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+
+module.exports = {
+    config: {
+        name: "down",
+        version: "1.0.0",
+        author: "thanh loc",
+        countDown: 4,
+        role: 0,
+        description: {
+            vi: "Hỗ trợ tải video từ nhiều trang web, !down help để biết chi tiết",
+            en: "Support video a lot of web, !down help to used"
+        },
+        category: "boxchat",
+        guide: {
+            vi: "",
+            en: ""
+        }
+    },
+
+    langs: {
+        vi: {},
+        en: {}
+    },
+
+    onStart: async function({ api, event, args }) {
+        const threadID = event.threadID;
+        const autolinkFile = 'autolink.json';
+        let autolinkData = {};
+
+        if (fs.existsSync(autolinkFile)) {
+            autolinkData = JSON.parse(fs.readFileSync(autolinkFile, 'utf8'));
+        } else {
+            autolinkData = {};
+        }
+
+        if (!autolinkData[threadID]) {
+            autolinkData[threadID] = false;
+            fs.writeFileSync(autolinkFile, JSON.stringify(autolinkData, null, 2));
+        }
+
+        // Handle !down help command
+        if (args[0] === 'help') {
+            return api.sendMessage(
+                'Support for downloading videos and images from various platforms including Tiktok, Douyin, Capcut, Threads, Instagram, Facebook, Espn, Kuaishou, Pinterest, Imgur, Reddit, Youtube, Twitter, Vimeo, Soundcloud, Spotify, etc.',
+                event.threadID,
+                event.messageID
+            );
+        }
+
+        if (!args[0]) {
+            const autolinkStatus = autolinkData[threadID];
+            if (autolinkStatus) {
+                return api.sendMessage("AutoDown is currently ON.", event.threadID, event.messageID);
+            } else {
+                return api.sendMessage("AutoDown is currently OFF.", event.threadID, event.messageID);
+            }
+        }
+
+        if (args[0].toLowerCase() === "on") {
+            autolinkData[threadID] = true;
+            fs.writeFileSync(autolinkFile, JSON.stringify(autolinkData, null, 2));
+            return api.sendMessage("✅ AutoDown has been turned on here.", event.threadID, event.messageID);
+        } else if (args[0].toLowerCase() === "off") {
+            autolinkData[threadID] = false;
+            fs.writeFileSync(autolinkFile, JSON.stringify(autolinkData, null, 2));
+            return api.sendMessage("❌ AutoDown has been turned off here.", event.threadID, event.messageID);
+        } else {
+            return api.sendMessage("Invalid command. Use 'on' or 'off'.", event.threadID, event.messageID);
+        }
+    },
+
+    onChat: async function({ api, event }) {
+        const down = require('../../lib/getLinkAll.js');
+        const threadID = event.threadID;
+        const autolinkFile = 'autolink.json';
+        let autolinkData = {};
+
+        if (fs.existsSync(autolinkFile)) {
+            autolinkData = JSON.parse(fs.readFileSync(autolinkFile, 'utf8'));
+        }
+
+        if (!autolinkData[threadID]) return; // Ensure that the status is defined for the thread
+        if (!autolinkData[threadID]) return; // Ensure that AutoDownload is turned on
+
+        if (!event.body) return;
+
+        const url = event.body;
+        const isURL = /^http(|s):\/\//.test(url);
+
+        if (!isURL) return;
+
+        const patterns = [
+            /instagram\.com/,
+            /facebook\.com/,
+            /pinterest\.com/,
+            /soundcloud\.com/,
+            /pin\.it/,
+            /capcut\.com/,
+            /spotify\.com/,
+            /x\.com/,
+            /tiktok\.com/,
+            /telegram\.org/,
+            /youtube\.com/,
+            /reddit\.com/,
+            /bilibili\.com/,
+            /threads\.net/,
+            /youtube\.com/
+
+        const matches = patterns.find(pattern => pattern.test(url));
+        if (!matches) return;
+
+        let data;
+        try {
+            data = await down.getlink(url);
+        } catch (error) {
+            console.error('Error:', error.response ? error.response.data : error.message);
+            return api.sendMessage(error.message, event.threadID, event.messageID);
+        }
+
+        if (data.error) return;
+
+        let fileContent = data.medias.map((item, index) => ({
+            path: path.join(__dirname, '..', '..', 'img', `${Date.now() + index}.${item.type === 'video' ? 'mp4' : 'jpg'}`),
+            url: item.url
+        }));
+
+        let attachments = [];
+        for (const content of fileContent) {
+            const attachment = await download(content.url, content.path);
+            if (attachment.err) return;
+            attachments.push(attachment);
+        }
+
+        let messageBody = `🎦 ${data.title || "Social media"}\n\nDownload Links:\n`;
+        for (const content of fileContent) {
+            const shortUrl = await global.utils.shortenURL(content.url);
+            messageBody += `${shortUrl}\n`;
+        }
+
+        api.sendMessage({
+            body: messageBody,
+            attachment: attachments
+        }, event.threadID, event.messageID);
+    }
+};
+
+async function download(url, savePath) {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        fs.writeFileSync(savePath, response.data);
+
+        setTimeout(() => {
+            fs.unlink(savePath, (err) => {
+                if (err) {
+                    console.error('Error deleting file:', err);
+                    return;
+                }
+                console.log('File successfully deleted:', savePath);
+            });
+        }, 1000 * 60);
+
+        console.log(`Downloaded and saved at ${savePath}`);
+        return fs.createReadStream(savePath);
+    } catch (error) {
+        console.error('Download error:', error.message);
+        return { err: true };
+    }
+}

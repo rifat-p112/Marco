@@ -1,0 +1,34 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": ""
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": ""
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Okay, I'm ready to receive your questions and provide helpful and informative responses using Python tools when necessary.  I will strive to be accurate, concise, and transparent in my thought process and evidence presentation.  \n\nPlease feel free to ask anything! I'm here to assist you. \n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Okay, I'm ready to receive your questions and provide helpful and informative responses using Python tools when necessary.  I will strive to be accurate, concise, and transparent in my thought process and evidence presentation.  \n\nPlease feel free to ask anything! I'm here to assist you."
+      }
+    ]
+  }
+]

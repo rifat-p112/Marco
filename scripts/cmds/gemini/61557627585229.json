@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Gn"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I'm sorry, I don't understand what \"Gn\" means.  Could you please clarify your request?\n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Kosko account ho yo"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I'm sorry, I don't understand what \"Kosko account ho yo\" means.  Could you please clarify your request?  I need more context to understand what you're asking for.  Are you asking about a specific type of account?  Please provide more details.\n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Gn"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I still don't understand what \"Gn\" means.  Could you please rephrase your question or provide more context?  Is it an abbreviation?  A code?  Part of a sentence?  More information is needed.\n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Tero bau Muji"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I do not understand what \"Tero bau Muji\" means.  It appears to be a phrase in a language I don't recognize.  Please provide more context or translate it into English.\n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Geda vaneko"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Geda vaneko"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I don't understand what \"Geda vaneko\" means.  It seems to be a phrase in a language I don't recognize.  Please provide more context or translate it into English so I can understand your request.\n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I don't understand what \"Geda vaneko\" means.  It seems to be a phrase in a language I don't recognize.  Please provide more context or translate it into English so I can understand your request."
+      }
+    ]
+  }
+]

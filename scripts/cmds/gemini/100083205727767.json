@@ -1,0 +1,82 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "bạn biết nói tiếng việt không?"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Vâng, tôi có thể nói và hiểu tiếng Việt.  \n\nTôi được đào tạo trên một lượng lớn dữ liệu văn bản, bao gồm cả tiếng Việt, nên tôi có thể giao tiếp, trả lời câu hỏi và thực hiện các tác vụ bằng tiếng Việt. \n\nHãy cứ thoải mái đặt câu hỏi hoặc yêu cầu tôi làm gì đó bằng tiếng Việt nhé!  \n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "ok"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Okay!  \n\nTôi sẵn sàng để hỗ trợ bạn bằng tiếng Việt. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào, hãy cứ thoải mái đặt ra nhé.  \n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "haha"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Haha! 😄\n\nTôi rất vui khi bạn thấy vui vẻ.  Nếu bạn muốn trò chuyện thêm hoặc có bất kỳ câu hỏi nào, tôi luôn sẵn sàng hỗ trợ. \n"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "bạn tên gì"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "bạn tên gì"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Tôi không có tên. Tôi là một mô hình ngôn ngữ lớn, được đào tạo bởi Google.\n"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Tôi không có tên. Tôi là một mô hình ngôn ngữ lớn, được đào tạo bởi Google."
+      }
+    ]
+  }
+]

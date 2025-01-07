@@ -1,0 +1,102 @@
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const moment = require('moment-timezone');
+
+module.exports = {
+  config: {
+    name: "info",
+    version: "2.0.0",
+    author: "Priyanshi Kaur",
+    countDown: 5,
+    role: 0,
+    shortDescription: {
+      en: "Display bot owner information"
+    },
+    longDescription: {
+      en: "Display detailed information about the bot owner,"
+    },
+    category: "info",
+    guide: {
+      en: "{prefix}info"
+    }
+  },
+
+  onStart: async function ({ api, event }) {
+    api.setMessageReaction("⏳", event.messageID, (err) => {}, true);
+
+    const ownerInfo = {
+      botName: "YourBotName",
+      ownerName: "YourName",
+      age: "YourAge",
+      location: "YourLocation",
+      facebook: "https://www.facebook.com/PriyanshiKaurJi",
+      telegram: "@priyanshikaurji",
+      discord: "https://discord.gg/wBYsueQU"
+    };
+
+    try {
+      // Get current time in Asia/Kolkata timezone
+      const currentTime = moment().tz("Asia/Kolkata").format("MMMM Do YYYY, h:mm:ss A");
+
+      // Get random fun fact
+      const factResponse = await axios.get('https://api.api-ninjas.com/v1/facts?limit=1', {
+        headers: { 'X-Api-Key': 'mz2frvHwqBCS3dTjkjM2wA==RaABY2HqVA2A58w0' } // Thay thế bằng API key hợp lệ
+      });
+      const funFact = factResponse.data[0].fact;
+
+      // Download image
+      const imageUrl = 'https://i.imgur.com/JRPaKw7.png';
+      const imagePath = path.join(__dirname, 'temp', 'owner_image.png');
+
+      // Kiểm tra thư mục 'temp', nếu chưa tồn tại thì tạo mới
+      if (!fs.existsSync(path.join(__dirname, 'temp'))) {
+        fs.mkdirSync(path.join(__dirname, 'temp'));
+      }
+
+      // Tải ảnh về
+      const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+
+      // Chuẩn bị nội dung tin nhắn
+      const message = `
+🤖 Bot Name: ${ownerInfo.botName}
+👤 Owner Name: ${ownerInfo.ownerName}
+🎂 Age: ${ownerInfo.age}
+📍 Location: ${ownerInfo.location}
+📱 Social Media:
+   📘 Facebook: ${ownerInfo.facebook}
+   📞 Telegram: ${ownerInfo.telegram}
+   🎮 Discord: ${ownerInfo.discord}
+
+🕰️ Current Time (Asia/Kolkata): ${currentTime}
+
+🎨 Fun Fact: ${funFact}
+
+Thanks for using our bot! 😊
+      `.trim();
+
+      // Gửi tin nhắn với ảnh đính kèm
+      api.sendMessage(
+        { body: message, attachment: fs.createReadStream(imagePath) },
+        event.threadID,
+        (err) => {
+          if (err) {
+            console.error('Error sending message:', err);
+            api.setMessageReaction("❌", event.messageID, (err) => {}, true);
+          } else {
+            api.setMessageReaction("✅", event.messageID, (err) => {}, true);
+          }
+
+          // Xóa tệp ảnh tạm thời sau khi gửi
+          fs.unlinkSync(imagePath);
+        }
+      );
+
+    } catch (error) {
+      console.error('ERROR:', error.response ? error.response.data : error.message);
+      api.setMessageReaction("❌", event.messageID, (err) => {}, true);
+      api.sendMessage("An error occurred while fetching owner information. Please try again later.", event.threadID);
+    }
+  }
+};
