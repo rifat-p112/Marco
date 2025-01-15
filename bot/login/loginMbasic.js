@@ -1,136 +1,97 @@
-const puppeteer = require('puppeteer');
-const solver = require('2captcha');
-const totp = require('totp-generator');
+const puppeteer = require("puppeteer");
+const totp = require("totp-generator");
 
-// API Key của bạn từ dịch vụ 2Captcha
-const apiKey = '50addf6f687785c2ee3403fa414f5fb1'; // Thay thế bằng API Key thực tế của bạn
+async function loginToFacebook({
+    email,
+    pass,
+    twoFactorSecretOrCode,
+    userAgent,
+	proxy,
+	maxTry = 3,
+    currentTry = 0
+}) {
+    const browserOptions = {
+        headless: false, // Hiển thị trình duyệt
+        slowMo: 50, // Thêm độ trễ giữa các thao tác
+        args: [],
+    };
 
-// Hàm giải mã CAPTCHA từ URL
-async function solveCaptcha(page) {
-    try {
-        // Lấy URL ảnh CAPTCHA từ trang
-        const captchaImage = await page.$('img[src*="captcha"]');
-        if (!captchaImage) throw new Error("Captcha image not found!");
-
-        // Lấy URL của CAPTCHA
-        const imageUrl = await page.evaluate(captchaImage => captchaImage.src, captchaImage);
-        console.log("Captcha URL:", imageUrl);
-
-        // Gửi CAPTCHA để giải qua 2Captcha
-        const solverInstance = new solver.TwoCaptcha(apiKey);
-        const result = await solverInstance.normal({ body: imageUrl });
-
-        // Trả về mã CAPTCHA đã giải
-        return result.text;
-    } catch (error) {
-        console.error('Error occurred while solving captcha:', error.message);
-        throw error;
+    // Thêm proxy nếu được cung cấp
+    if (proxy) {
+        browserOptions.args.push(`--proxy-server=${proxy}`);
     }
-}
 
-// Hàm đăng nhập vào Facebook và vượt qua CAPTCHA nếu có
-async function loginMbasic({ email, pass, twoFactorSecretOrCode, userAgent, proxy, maxTry = 3, currentTry = 0 }) {
-    const browser = await puppeteer.launch({
-        headless: false, // Để thấy được trình duyệt
-        args: proxy ? [`--proxy-server=${proxy}`] : []
-    });
-
+    const browser = await puppeteer.launch(browserOptions);
     const page = await browser.newPage();
-    if (userAgent) {
-        await page.setUserAgent(userAgent);
-    }
 
-    await page.goto('https://www.facebook.com/', {
-        waitUntil: 'networkidle2'
+    // Cài đặt user-agent và ngôn ngữ
+    await page.setUserAgent(userAgent);
+    await page.setExtraHTTPHeaders({
+        "accept-language": "vi,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
     });
 
-    // Điền thông tin đăng nhập
-    await page.type('input[name="email"]', email);
-    await page.type('input[name="pass"]', pass);
+    try {
+        await page.goto("https://m.facebook.com/", { waitUntil: "networkidle2" });
 
-    // Nhấn nút login
-    const loginButton = await page.$('button[name="login"]') || await page.$('button[data-testid="royal_login_button"]');
-    if (!loginButton) {
-        const error = new Error("No login button found on the page");
+        // Nhập email/số điện thoại và mật khẩu
+        await page.type('input[name="email"]', email, { delay: 100 });
+        await page.type('input[name="pass"]', pass, { delay: 100 });
+		await page.click('div[role="button"][aria-label="Đăng nhập"]');
+
+        await page.waitForNavigation({ waitUntil: "networkidle2" });
+
+        // Xử lý xác thực hai yếu tố (2FA) nếu yêu cầu
+        if (await page.$('input[name="approvals_code"]')) {
+            if (!twoFactorSecretOrCode) {
+                throw new Error("Yêu cầu mã 2FA nhưng không được cung cấp.");
+            }
+
+            let otpCode;
+            if (twoFactorSecretOrCode.length >= 32) {
+                // Tạo mã OTP từ secret
+                otpCode = totp(twoFactorSecretOrCode.replace(/\s/g, ""));
+            } else {
+                otpCode = twoFactorSecretOrCode; // Dùng trực tiếp mã OTP
+            }
+
+            // Nhập mã OTP
+            await page.type('input[name="approvals_code"]', otpCode, { delay: 100 });
+            await page.click('button[name="submit[Submit Code]"]');
+
+            await page.waitForNavigation({ waitUntil: "networkidle2" });
+        }
+
+        // Xử lý các bước bảo mật bổ sung
+        while (await page.$('input[name="submit[Continue]"], input[name="submit[This was me]"]')) {
+            const continueButton = await page.$('input[name="submit[Continue]"]');
+            const thisWasMeButton = await page.$('input[name="submit[This was me]"]');
+
+            if (continueButton) {
+                await continueButton.click();
+            } else if (thisWasMeButton) {
+                await thisWasMeButton.click();
+            }
+
+            await page.waitForNavigation({ waitUntil: "networkidle2" });
+        }
+
+        // Lấy cookies sau khi đăng nhập thành công
+        const cookies = await page.cookies();
+        await browser.close();
+
+        return cookies.map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value,
+            domain: cookie.domain,
+            path: cookie.path,
+            hostOnly: cookie.hostOnly,
+            creation: new Date().toISOString(),
+            lastAccessed: new Date().toISOString(),
+        }));
+    } catch (error) {
         await browser.close();
         throw error;
     }
-
-    // Submit form đăng nhập
-    await Promise.all([
-        page.click('button[name="login"]') || page.click('button[data-testid="royal_login_button"]'),
-        page.waitForNavigation({ waitUntil: 'networkidle2' })
-    ]);
-
-    // Kiểm tra nếu CAPTCHA xuất hiện
-    const captchaImage = await page.$('img[src*="captcha"]');
-    if (captchaImage) {
-        // Lấy và giải CAPTCHA
-        const captchaSolution = await solveCaptcha(page);
-
-        // Nhập mã CAPTCHA vào form
-        await page.type('input[name="captcha_response"]', captchaSolution);
-
-        // Submit CAPTCHA
-        await page.click('button[name="submit"]');
-        await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
-        // Kiểm tra nếu CAPTCHA không vượt qua được
-        const captchaFailed = await page.$('div._9ay7');
-        if (captchaFailed) {
-            await browser.close();
-            throw new Error("Failed to solve captcha, unable to proceed.");
-        }
-    }
-
-    // Kiểm tra nếu đăng nhập thất bại
-    const loginFailed = await page.$("div._9ay7");
-    if (loginFailed) {
-        await browser.close();
-        throw new Error("Password is incorrect");
-    }
-
-    // Kiểm tra nếu cần mã xác minh 2FA
-    const twoFactorForm = await page.$('input[name="approvals_code"]');
-    if (twoFactorForm) {
-        let otpCode;
-        if (twoFactorSecretOrCode.length >= 32) {
-            twoFactorSecretOrCode = twoFactorSecretOrCode.replace(/\s/g, '');
-            otpCode = totp(twoFactorSecretOrCode);
-        } else {
-            otpCode = twoFactorSecretOrCode;
-        }
-
-        await page.type('input[name="approvals_code"]', otpCode);
-
-        // Submit mã 2FA
-        await Promise.all([
-            page.click('button[name="submit[Submit Code]"]'),
-            page.waitForNavigation({ waitUntil: 'networkidle2' })
-        ]);
-    }
-
-    // Kiểm tra xem có yêu cầu xác minh tài khoản (checkpoint) không
-    const checkpoint = await page.$("form[action*='checkpoint']");
-    if (checkpoint) {
-        await browser.close();
-        throw new Error("Your account is locked, please verify your identity");
-    }
-
-    // Lấy cookies sau khi đăng nhập thành công
-    const cookies = await page.cookies();
-    await browser.close();
-
-    return cookies.map(cookie => ({
-        name: cookie.name,
-        value: cookie.value,
-        domain: cookie.domain,
-        path: cookie.path,
-        hostOnly: cookie.hostOnly,
-        creation: new Date().toISOString(),
-        lastAccessed: new Date().toISOString()
-    }));
 }
 
-// Xuất hàm loginMbasic để có thể sử dụng lại
-module.exports = loginMbasic;
+module.exports = loginToFacebook;
